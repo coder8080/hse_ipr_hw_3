@@ -1,0 +1,12 @@
+services:
+  counter:
+    build: .
+    container_name: hse_counter
+    ports:
+      - ${PORT:-8080}:${PORT:-8000}
+    env_file: .env
+    volumes:
+      - hse_counter:/data
+
+volumes:
+  hse_counter:
