@@ -9,7 +9,7 @@ echo Testing with project $project
 
 docker compose -p $project up --build --force-recreate -d --wait --wait-timeout 60
 
-count=$(timeout 2s curl -fsS http://localhost:8081 | jq '.count')
+count=$(timeout 2s curl -fsS http://localhost:8081 | grep -o '"count": [0-9][0-9]*' | grep -o '[0-9][0-9]*')
 
 if [ "$count" -ne 0 ]; then
     echo "X | SOURCE COUNT IS NOT ZERO"
@@ -24,7 +24,7 @@ for i in $(seq 1 $N); do
     timeout 2s curl -fsS -X POST http://localhost:8081/increment > /dev/null
 done
 
-count=$(timeout 2s curl -fsS http://localhost:8081 | jq '.count')
+count=$(timeout 2s curl -fsS http://localhost:8081 | grep -o '"count": [0-9][0-9]*' | grep -o '[0-9][0-9]*')
 
 if [ "$count" -ne "$N" ]; then
     echo "X | MODIFIED COUNT IS NOT $N"
@@ -36,7 +36,7 @@ fi
 echo "Recreating app..."
 docker compose -p $project up --force-recreate -d --wait --wait-timeout 60 app
 
-count=$(timeout 2s curl -fsS http://localhost:8081 | jq '.count')
+count=$(timeout 2s curl -fsS http://localhost:8081 | grep -o '"count": [0-9][0-9]*' | grep -o '[0-9][0-9]*')
 
 if [ "$count" -ne "$N" ]; then
     echo "X | COUNT AFTER RECREATE IS $count, NOT $N"
@@ -78,7 +78,7 @@ fi
 echo "Starting redis..."
 docker compose -p $project up --wait --wait-timeout 60 redis
 
-count=$(timeout 2s curl -fsS http://localhost:8081 | jq '.count')
+count=$(timeout 2s curl -fsS http://localhost:8081 | grep -o '"count": [0-9][0-9]*' | grep -o '[0-9][0-9]*')
 
 echo "Stopping application..."
 docker compose -p $project down
