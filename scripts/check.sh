@@ -86,6 +86,24 @@ docker compose -p $project up --wait --wait-timeout 60 redis
 
 count=$(timeout 2s curl -fsS http://localhost:8081 | grep -o '"count": [0-9][0-9]*' | grep -o '[0-9][0-9]*')
 
+if [ "$count" -ne "$N" ]; then
+    echo "X | COUNT AFTER REDIS RESTART IS $count, NOT $N"
+    exit 1
+else
+    echo "V | COUNT AFTER REDIS RESTART IS $N"
+fi
+
+timeout 2s curl -fsS -X POST http://localhost:8081/increment > /dev/null
+count=$(timeout 2s curl -fsS http://localhost:8081 | grep -o '"count": [0-9][0-9]*' | grep -o '[0-9][0-9]*')
+
+M=$((N + 1))
+if [ "$count" -ne "$M" ]; then
+    echo "X | COUNT AFTER REDIS RESTART AND INCREMENT IS $count, NOT $M"
+    exit 1
+else
+    echo "V | COUNT AFTER REDIS RESTART AND INCREMENT IS $M"
+fi
+
 echo "Stopping application..."
 docker compose -p $project down
 
