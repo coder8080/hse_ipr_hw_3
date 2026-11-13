@@ -5,6 +5,12 @@ set -euo pipefail
 suffix=$(date +%s)
 project=hse_counter_$suffix
 
+project_down() {
+    docker compose -p $project down -v
+}
+
+trap project_down EXIT
+
 echo Testing with project $project
 
 docker compose -p $project up --build --force-recreate -d --wait --wait-timeout 60
@@ -93,5 +99,3 @@ docker run --rm \
   tar -czp -C /source -f /dest/${suffix}.tar.gz .
 
 echo "V | EVERYTHING OK :-) )))"
-
-docker compose -p $project down -v
